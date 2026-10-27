@@ -36,7 +36,6 @@ func main() {
 func run(r io.Reader, w io.Writer) error {
 	in := bufio.NewReader(r)
 	out := bufio.NewWriter(w)
-	defer out.Flush()
 	for {
 		line, err := in.ReadBytes('\n')
 		if len(bytes.TrimSpace(line)) > 0 {
@@ -45,10 +44,13 @@ func run(r io.Reader, w io.Writer) error {
 			}
 		}
 		if err == io.EOF {
-			return nil
+			return out.Flush()
 		}
 		if err != nil {
-			return err
+			if ferr := out.Flush(); ferr != nil {
+				return fmt.Errorf("%w (flushing output: %v)", err, ferr)
+			}
+			return fmt.Errorf("reading input: %w", err)
 		}
 	}
 }
