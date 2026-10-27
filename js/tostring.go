@@ -215,3 +215,6 @@ func ConstructorName(v Value) (Value, bool) {
 	}
 	return Str("Object"), true
 }
+
+// DateISOString formats a valid time value like Date.prototype.toISOString.
+func DateISOString(t float64) string { return jsdate.ToISOString(t) }
