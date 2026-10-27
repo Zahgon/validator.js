@@ -4,7 +4,7 @@
 
 | Field | Value |
 | --- | --- |
-| Project | `validatorjs/validator.js`: the `validator` npm package and browser builds generated from `src/` |
+| Project | `validatorjs/validator.js`: the Go module `github.com/validatorjs/validator.js` and its `validator` command |
 | Document type | Non-binding security-review and threat-modeling guidance |
 | Version coverage | The current release, consistent with `SECURITY.md`; older releases require separate analysis |
 | Audience | Maintainers, integrators, security reviewers, and AI agents |
@@ -18,9 +18,9 @@ This document provides non-binding guidance for security review. It does not est
 ### In scope
 
 - Public validators, sanitizers, normalizers, converters, exported locale lists, and related options.
-- Shared helpers and static data under `src/` when they affect public API behavior.
-- Node.js, ES module, and browser builds generated from `src/`.
-- The official build and npm publication path insofar as it determines whether reviewed source corresponds to an official package.
+- Shared helpers, the JavaScript runtime model under `js/` and `internal/`, and static data when they affect public API behavior.
+- The `validator` command built from `cmd/validator`.
+- The official build and release path insofar as it determines whether reviewed source corresponds to an official module version.
 - Library-owned validation, sanitization, normalization, conversion, option handling, error behavior, and resource use.
 - Interactions between public APIs and shared internal helpers.
 
@@ -28,8 +28,8 @@ This document provides non-binding guidance for security review. It does not est
 
 - Application authentication, authorization, tenant policy, business rules, rate limiting, storage constraints, output encoding contexts, and sink selection.
 - Whether an application should accept a particular email address, URL, identifier, locale, currency format, or other value as a matter of business policy.
-- Independent vulnerabilities in JavaScript engines, Node.js, browsers, operating systems, package registries, and development tools unless validator.js causes or unnecessarily exposes the unsafe behavior.
-- Generated artifacts when they faithfully represent `src/`; build divergence is a release-engineering concern that may warrant separate investigation.
+- Independent vulnerabilities in the Go toolchain, operating systems, module proxies, and development tools unless validator.js causes or unnecessarily exposes the unsafe behavior.
+- Built binaries when they faithfully represent the reviewed source; build divergence is a release-engineering concern that may warrant separate investigation.
 - Third-party wrappers and integrations except where validator.js itself violates a documented guarantee.
 
 validator.js currently ships no runtime dependencies. Development dependencies do not form part of the installed library's runtime attack surface, although they remain relevant to repository and release security.
@@ -61,7 +61,7 @@ The security policy guarantees fixes only for the current version. Applying this
   Static locale/format data ------^
   JavaScript runtime <---- language and platform operations
 
-  Reviewed source --> CI build/test --> GitHub release --> npm package
+  Reviewed source --> CI build/test --> GitHub release --> Go module version
 ```
 
 ### API channels
@@ -102,7 +102,7 @@ validator.js performs no network, filesystem, database, or process-spawning oper
 - Integrity of validation and sanitization policy decisions made through documented options.
 - Integrity of documented option and policy decisions.
 - Predictability of documented string and numeric operations.
-- Consistency of behavior across Node.js, ES module, and browser distributions.
+- Consistency of behavior between the Go package and the `validator` command.
 - Integrity and authenticity of official releases and published package contents.
 
 ### Security-relevant effects
@@ -157,7 +157,7 @@ These are review scenarios, not assertions of current vulnerabilities.
 | DOS-03 | Availability | Parsers and sanitizers | Repeated splitting, replacement, normalization, or output expansion causes disproportionate work or memory use. | Work and output proportionate to input size, supported by bounded-input tests. |
 | SAN-01 | Integrity / misuse | Sanitizers and normalizers | A transformation is treated as safe for a context outside its documented behavior. | Documentation of the exact transformation and consideration of whether any independent validator.js behavior is involved. |
 | API-01 | Integrity | Shared helpers and composed APIs | A change to shared implementation alters another public API's documented behavior. | Review of public callers and deliberate treatment of compatibility. |
-| BUILD-01 | Integrity | Generated distributions | Source behavior differs from Node, ES module, or browser artifacts. | Representative testing of distributed forms. |
+| BUILD-01 | Integrity | Built command | Command behavior differs from the Go package. | Representative testing of the command over JSON Lines. |
 | SUP-01 | Authenticity / integrity | Release and publication | An unauthorized or substituted package is published through an official channel. | Restricted publishing authority and verifiable correspondence between source and package. |
 | COR-01 | Correctness | Validators and sanitizers | A function returns an incorrect result without producing an independent security effect. | Treatment as correctness rather than a security vulnerability. |
 
@@ -188,7 +188,7 @@ The following dispositions may help organize findings. Maintainers retain discre
 
 3. **Application misuse / defense-in-depth** — validator.js preserves its invariants and introduces no independent unsafe behavior, but the application relies on a guarantee the API does not make or uses an explicitly executable/raw channel as passive data.
 
-4. **Runtime / operating-system issue** — the failure appears to belong wholly to JavaScript, Node.js, a browser, or the operating system, and validator.js neither causes nor unnecessarily exposes it. Referral to the responsible project may be appropriate.
+4. **Runtime / operating-system issue** — the failure appears to belong wholly to the Go toolchain or the operating system, and validator.js neither causes nor unnecessarily exposes it. Referral to the responsible project may be appropriate.
 
 For a time-bounded review, maintainers expressed the following preference without limiting their discretion:
 
@@ -236,5 +236,4 @@ Applications using validator.js should:
 - [validator.js README](README.md)
 - [validator.js security policy](SECURITY.md)
 - [Package metadata and scripts](package.json)
-- [npm publication workflow](.github/workflows/npm-publish.yml)
 - [ECMAScript specification](https://tc39.es/ecma262/)

@@ -4,14 +4,13 @@ This file provides guidance to AI coding agents working with this repository.
 
 ## Project map
 
-- validator.js is a single-package npm project for string validation and sanitization.
-- `src/index.js` defines the public exports, and `src/lib` contains validators, sanitizers, normalizers, converters, static format data, and shared utilities.
-- `test/validators.test.js` contains most API tests; additional test files cover browser builds and individual utilities.
+- validator.js is a Go module (`github.com/validatorjs/validator.js`) for string validation and sanitization; it reproduces the behaviour of the JavaScript library exactly, errors included.
+- `validator.go` defines the public exports (`Call`, `Names`, `Version`); one Go file per area holds the validators, sanitizers, normalizers and converters, and the `*_data.go` files hold the static locale and format tables.
+- `js/` models the JavaScript values and conversions the library depends on; `internal/jsre` is the JavaScript regular expression engine, `internal/jsdate` the Date arithmetic and `Date.parse`, and `internal/wire` the tagged JSON form of values.
+- `cmd/validator` is the JSON Lines command line.
+- `validators_test.go` and the fixtures in `testdata/` hold the recorded calls of the original test suites; `util_test.go` and `exports_test.go` cover the helpers and the export list.
 - `README.md` is the primary public API reference. Update it when documented API behavior or options change.
-- `build-browser.js` creates the browser bundle. Babel creates the Node and ES module distributions.
-- `index.js`, `lib/`, `es/`, `validator.js`, and `validator.min.js` are generated. Do not edit or commit them manually.
-- The published package contains only the generated distributions, `README.md`, `LICENSE`, and package metadata listed in the `files` field of `package.json`.
-- validator.js has no runtime dependencies. The packages in `devDependencies` are used only to build, lint, and test the project.
+- validator.js has no dependencies outside the Go standard library.
 
 ## Branching and pull requests
 
@@ -22,29 +21,21 @@ This file provides guidance to AI coding agents working with this repository.
 
 ## Install and build
 
-- Use npm for the official build and test path.
-- Install development dependencies with `npm install --legacy-peer-deps`, as documented in `CONTRIBUTING.md` and used by CI.
-- Prefer the latest Node.js LTS release for local development. When adding syntax or runtime APIs, follow the compatibility range declared in `package.json` and verify compatibility with the Node.js versions supported by CI.
-- Run `npm run build` to generate the Node, ES module, and browser distributions.
-- Do not infer a source change from generated output alone; inspect the corresponding file under `src/`.
+- Use Go 1.23 or newer; the build needs no network access and no module beyond the standard library.
+- Build the command with `go build ./cmd/validator`.
 
 ## Test
 
-- `npm test` is the broad local check. Its `pretest` lifecycle builds every distribution and runs ESLint before the Mocha suite.
-- `npm run lint` checks `src/` and `test/`.
-- `npm run build` builds all published forms without running the tests.
-- For a focused Mocha run, use `npm test -- --grep '<test name>'`; retain the broad `npm test` run before considering a code change complete.
-- Tests use Mocha, Babel, and nyc. Coverage output under `coverage/` and `.nyc_output/` is generated and should not be committed.
+- `go test ./...` is the broad local check; also run `gofmt -l .` and `go vet ./...`.
+- For a focused run, use `go test -run '<TestName>/<subtest>' .`.
 - When changing a shared helper, identify and test its public callers. A helper-level test alone does not establish public API behavior.
-- When changing behavior represented in multiple distributions, verify the source implementation and the relevant generated form rather than editing generated files.
-- If a command fails during setup, distinguish dependency, Node-version, filesystem, and tooling failures from product-code failures before changing source.
+- If a command fails during setup, distinguish toolchain, filesystem and environment failures from product-code failures before changing source.
 
 ## Change discipline
 
 - Preserve documented behavior and compatibility outside the stated scope of a change.
 - Prefer the smallest root-cause fix over special-casing a reported input.
 - Keep static locale and format data changes separate from algorithm changes when practical.
-- Do not update generated distributions manually; building and publishing generate them from `src/`.
 - Do not commit, push, publish a package or advisory, open an issue or pull request, or disclose private security material unless explicitly authorized.
 
 ## Documentation and threat model
@@ -65,6 +56,6 @@ This file provides guidance to AI coding agents working with this repository.
 - State the exact arguments, options, environment, expected documented behavior, observed behavior, independent security effect, and relevant preconditions.
 - Add a focused regression test that expresses the expected correct behavior rather than an incidental implementation detail.
 - Run the test against the unchanged implementation and confirm that it fails for the stated reason. If the behavior does not reproduce, stop and report the evidence instead of modifying source.
-- After a fix, confirm that the focused test passes and run `npm test` to check the generated builds, lint, and existing test suite.
+- After a fix, confirm that the focused test passes and run `go test ./...`, `gofmt -l .` and `go vet ./...`.
 - Keep reproductions safe, local, bounded, self-contained, and readable. Do not contact external targets or run unbounded denial-of-service payloads.
 - Report the root cause, files changed, before-and-after results, compatibility effects, assumptions, and remaining limitations.

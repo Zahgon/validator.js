@@ -1,0 +1,17 @@
+{"file": "test/validators/isBefore.test.js", "cases": [
+{"it": "", "fn": "isBefore", "args": ["2010-07-02", {"comparisonDate": "08/04/2011"}], "ok": true},
+{"it": "", "fn": "isBefore", "args": ["2010-08-04", {"comparisonDate": "08/04/2011"}], "ok": true},
+{"it": "", "fn": "isBefore", "args": ["Thu Jan 01 1970 00:00:00 GMT+0000 (Coordinated Universal Time)", {"comparisonDate": "08/04/2011"}], "ok": true},
+{"it": "", "fn": "isBefore", "args": ["08/04/2011", {"comparisonDate": "08/04/2011"}], "ok": false},
+{"it": "", "fn": "isBefore", "args": ["Mon Oct 10 2011 00:00:00 GMT+0000 (Coordinated Universal Time)", {"comparisonDate": "08/04/2011"}], "ok": false},
+{"it": "", "fn": "isBefore", "args": ["2010-07-02", {"comparisonDate": "Thu Aug 04 2011 00:00:00 GMT+0000 (Coordinated Universal Time)"}], "ok": true},
+{"it": "", "fn": "isBefore", "args": ["2010-08-04", {"comparisonDate": "Thu Aug 04 2011 00:00:00 GMT+0000 (Coordinated Universal Time)"}], "ok": true},
+{"it": "", "fn": "isBefore", "args": ["Thu Jan 01 1970 00:00:00 GMT+0000 (Coordinated Universal Time)", {"comparisonDate": "Thu Aug 04 2011 00:00:00 GMT+0000 (Coordinated Universal Time)"}], "ok": true},
+{"it": "", "fn": "isBefore", "args": ["08/04/2011", {"comparisonDate": "Thu Aug 04 2011 00:00:00 GMT+0000 (Coordinated Universal Time)"}], "ok": false},
+{"it": "", "fn": "isBefore", "args": ["Mon Oct 10 2011 00:00:00 GMT+0000 (Coordinated Universal Time)", {"comparisonDate": "Thu Aug 04 2011 00:00:00 GMT+0000 (Coordinated Universal Time)"}], "ok": false},
+{"it": "", "fn": "isBefore", "args": ["1999-12-31", {"comparisonDate": "2011-08-03"}], "ok": true},
+{"it": "", "fn": "isBefore", "args": ["invalid date", {"comparisonDate": "2011-08-03"}], "ok": false},
+{"it": "", "fn": "isBefore", "args": ["invalid date", {"comparisonDate": "invalid date"}], "ok": false},
+{"it": "", "fn": "isBefore", "args": ["1999-12-31", {"comparisonDate": "invalid date"}], "ok": false},
+{"it": "", "fn": "isBefore", "args": ["1999-06-07", {"comparisonDate": {"$undefined": true}}], "ok": true}
+]}

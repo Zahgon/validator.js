@@ -1,0 +1,14 @@
+{"file": "test/validators/isAfter.test.js", "cases": [
+{"it": "should validate dates against a start date", "fn": "isAfter", "args": ["2011-08-04", {"comparisonDate": "2011-08-03"}], "ok": true},
+{"it": "should validate dates against a start date", "fn": "isAfter", "args": ["Sat Sep 10 2011 00:00:00 GMT+0000 (Coordinated Universal Time)", {"comparisonDate": "2011-08-03"}], "ok": true},
+{"it": "should validate dates against a start date", "fn": "isAfter", "args": ["2010-07-02", {"comparisonDate": "2011-08-03"}], "ok": false},
+{"it": "should validate dates against a start date", "fn": "isAfter", "args": ["2011-08-03", {"comparisonDate": "2011-08-03"}], "ok": false},
+{"it": "should validate dates against a start date", "fn": "isAfter", "args": ["Thu Jan 01 1970 00:00:00 GMT+0000 (Coordinated Universal Time)", {"comparisonDate": "2011-08-03"}], "ok": false},
+{"it": "should validate dates against a start date", "fn": "isAfter", "args": ["foo", {"comparisonDate": "2011-08-03"}], "ok": false},
+{"it": "should validate dates against a start date", "fn": "isAfter", "args": ["2015-09-17", {"comparisonDate": "2011-08-03"}], "ok": true},
+{"it": "should validate dates against a start date", "fn": "isAfter", "args": ["invalid date", {"comparisonDate": "2011-08-03"}], "ok": false},
+{"it": "should validate dates against a start date", "fn": "isAfter", "args": ["invalid date", {"comparisonDate": "invalid date"}], "ok": false},
+{"it": "should validate dates against a start date", "fn": "isAfter", "args": ["2015-09-17", {"comparisonDate": "invalid date"}], "ok": false},
+{"it": "should validate dates against a start date", "fn": "isAfter", "args": ["2100-08-04", {"comparisonDate": {"$undefined": true}}], "ok": true},
+{"it": "should validate dates against a start date", "fn": "isAfter", "args": ["Wed Oct 28 2026 22:40:48 GMT+0000 (Coordinated Universal Time)", {"comparisonDate": {"$undefined": true}}], "ok": true}
+]}

@@ -218,3 +218,10 @@ func ConstructorName(v Value) (Value, bool) {
 
 // DateISOString formats a valid time value like Date.prototype.toISOString.
 func DateISOString(t float64) string { return jsdate.ToISOString(t) }
+
+// TypeTag returns the lowercase type tag of Object.prototype.toString, as the library's typeOf helper does
+// ("array", "null", "date", "string", "undefined", "number", ...).
+func TypeTag(v Value) string {
+	tag := ObjectToStringTag(v)
+	return strings.ToLower(tag[len("[object ") : len(tag)-1])
+}

@@ -15,9 +15,9 @@ A clear and concise description of what the bug is.
 If applicable, add screenshots to help explain your problem.
 
 **Reproductions**
-If applicable, provide a reproduction on platforms like [runkit](npm.runkit.com/validator)
+If applicable, provide a reproduction as a `go test` case or a JSON Lines request for `go run ./cmd/validator`
 
 **Additional context**
 Validator.js version:
-Node.js version:
+Go version:
 OS platform: [windows, linux, macOS, etc]

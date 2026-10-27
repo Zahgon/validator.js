@@ -16,6 +16,7 @@ import (
 	"os"
 
 	validator "github.com/validatorjs/validator.js"
+	"github.com/validatorjs/validator.js/internal/wire"
 	"github.com/validatorjs/validator.js/js"
 )
 
@@ -57,7 +58,7 @@ func handle(line []byte, out *bufio.Writer) error {
 	if err := json.Unmarshal(line, &req); err != nil {
 		return writeError(out, nil, "InputError", err.Error())
 	}
-	args, err := decodeArgs(req.Args)
+	args, err := wire.DecodeArgs(req.Args)
 	if err != nil {
 		return writeError(out, req.ID, "InputError", err.Error())
 	}
@@ -72,7 +73,7 @@ func handle(line []byte, out *bufio.Writer) error {
 	b.WriteString(`{"id":`)
 	b.Write(idOrNull(req.ID))
 	b.WriteString(`,"ok":`)
-	encodeValue(&b, result)
+	wire.Encode(&b, result)
 	b.WriteString("}\n")
 	_, err = out.Write(b.Bytes())
 	return err
@@ -90,9 +91,9 @@ func writeError(out *bufio.Writer, id json.RawMessage, name, message string) err
 	b.WriteString(`{"id":`)
 	b.Write(idOrNull(id))
 	b.WriteString(`,"error":{"name":`)
-	writeString(&b, name)
+	wire.WriteString(&b, name)
 	b.WriteString(`,"message":`)
-	writeString(&b, message)
+	wire.WriteString(&b, message)
 	b.WriteString("}}\n")
 	_, err := out.Write(b.Bytes())
 	return err

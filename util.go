@@ -194,3 +194,5 @@ func verhoeffCheck(str string) bool {
 
 // itoa formats an int the way JavaScript prints an integral number.
 func itoa(n int) string { return strconv.Itoa(n) }
+
+func nan() float64 { return math.NaN() }

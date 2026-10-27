@@ -1,0 +1,6 @@
+{"file": "test/validators/isFQDN.test.js", "cases": [
+{"it": "should validate domain names.", "fn": "isFQDN", "args": ["google.com"], "ok": true},
+{"it": "should validate domain names.", "fn": "isFQDN", "args": ["google.l33t"], "ok": false},
+{"it": "should validate domain names.", "fn": "isFQDN", "args": ["google.com", {"allow_numeric_tld": true}], "ok": true},
+{"it": "should validate domain names.", "fn": "isFQDN", "args": ["google.l33t", {"allow_numeric_tld": true, "require_tld": true, "allow_underscores": false, "allow_trailing_dot": false, "allow_wildcard": false, "ignore_max_length": false}], "ok": true}
+]}

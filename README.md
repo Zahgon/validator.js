@@ -1,8 +1,6 @@
 # validator.js
-[![NPM version][npm-image]][npm-url]
 [![CI][ci-image]][ci-url]
 [![Coverage][codecov-image]][codecov-url]
-[![Downloads][downloads-image]][npm-url]
 [![Backers on Open Collective](https://opencollective.com/validatorjs/backers/badge.svg)](#backers)
 [![Sponsors on Open Collective](https://opencollective.com/validatorjs/sponsors/badge.svg)](#sponsors)
 [![License](https://img.shields.io/badge/License-MIT-red.svg)](https://github.com/validatorjs/validator.js/blob/master/LICENSE)
@@ -19,63 +17,48 @@ Passing anything other than a string will result in an error.
 
 ## Installation and Usage
 
-### Server-side usage
+This is the Go port of validator.js. It needs Go 1.23 or newer and only the standard library.
 
-Install the `validator` package as:
+### Go package
 
 ```sh
-npm i validator
-yarn add validator
-pnpm i validator
+go get github.com/validatorjs/validator.js
 ```
 
-#### No ES6
+Every export is called with the arguments of the JavaScript call, as `js.Value` items, and returns the result
+or the error JavaScript would throw:
 
-```javascript
-var validator = require('validator');
+```go
+import (
+	validator "github.com/validatorjs/validator.js"
+	"github.com/validatorjs/validator.js/js"
+)
 
-validator.isEmail('foo@bar.com'); //=> true
+ok, err := validator.Call("isEmail", []js.Value{js.Str("foo@bar.com")}) // ok is js.Bool(true), err is nil
 ```
 
-#### ES6
+`validator.Names()` lists the exports in the order of the original module object.
 
-```javascript
-import validator from 'validator';
+### Command line
+
+```sh
+go build ./cmd/validator
+echo '{"id": 1, "fn": "isEmail", "args": ["foo@bar.com"]}' | ./validator
+# {"id":1,"ok":true}
 ```
 
-Or, import only a subset of the library:
+The command reads JSON Lines `{"id", "fn", "args"}` from standard input and writes one line per request:
+`{"id", "ok": <result>}`, or `{"id", "error": {"name", "message"}}` when the call throws. Values JSON cannot express
+are tagged objects: `{"$undefined": true}`, `{"$number": "NaN" | "Infinity" | "-Infinity" | "-0"}`,
+`{"$regexp": [source, flags]}` and `{"$date": <milliseconds or null>}`; a Date result is
+`{"$date": "<toISOString text>"}`.
 
-```javascript
-import isEmail from 'validator/lib/isEmail';
-```
+### Development
 
-#### Tree-shakeable ES imports
-
-```javascript
-import isEmail from 'validator/es/lib/isEmail';
-```
-
-### Client-side usage
-
-The library can be loaded either as a standalone script, or through an [AMD][amd]-compatible loader
-
-```html
-<script type="text/javascript" src="validator.min.js"></script>
-<script type="text/javascript">
-  validator.isEmail('foo@bar.com'); //=> true
-</script>
-```
-
-The library can also be installed through [bower][bower]
-
-```bash
-$ bower install validator-js
-```
-
-CDN
-
-```html
-<script src="https://unpkg.com/validator@latest/validator.min.js"></script>
+```sh
+gofmt -l .
+go vet ./...
+go test ./...
 ```
 
 ## Validators
@@ -186,7 +169,7 @@ Sanitizer                              | Description
 **ltrim(input [, chars])**             | trim characters from the left-side of the input.
 **normalizeEmail(email [, options])**  | canonicalize an email address. (This doesn't validate that the input is an email, if you want to validate the email use isEmail beforehand).<br/><br/>`options` is an object with the following keys and default values:<br/><ul><li>*all_lowercase: true* - Transforms the local part (before the @ symbol) of all email addresses to lowercase. Please note that this may violate RFC 5321, which gives providers the possibility to treat the local part of email addresses in a case sensitive way (although in practice most - yet not all - providers don't). The domain part of the email address is always lowercased, as it is case insensitive per RFC 1035.</li><li>*gmail_lowercase: true* - Gmail addresses are known to be case-insensitive, so this switch allows lowercasing them even when *all_lowercase* is set to false. Please note that when *all_lowercase* is true, Gmail addresses are lowercased regardless of the value of this setting.</li><li>*gmail_remove_dots: true*: Removes dots from the local part of the email address, as Gmail ignores them (e.g. "john.doe" and "johndoe" are considered equal).</li><li>*gmail_remove_subaddress: true*: Normalizes addresses by removing "sub-addresses", which is the part following a "+" sign (e.g. "foo+bar@gmail.com" becomes "foo@gmail.com").</li><li>*gmail_convert_googlemaildotcom: true*: Converts addresses with domain @googlemail.com to @gmail.com, as they're equivalent.</li><li>*outlookdotcom_lowercase: true* - Outlook.com addresses (including Windows Live and Hotmail) are known to be case-insensitive, so this switch allows lowercasing them even when *all_lowercase* is set to false. Please note that when *all_lowercase* is true, Outlook.com addresses are lowercased regardless of the value of this setting.</li><li>*outlookdotcom_remove_subaddress: true*: Normalizes addresses by removing "sub-addresses", which is the part following a "+" sign (e.g. "foo+bar@outlook.com" becomes "foo@outlook.com").</li><li>*yahoo_lowercase: true* - Yahoo Mail addresses are known to be case-insensitive, so this switch allows lowercasing them even when *all_lowercase* is set to false. Please note that when *all_lowercase* is true, Yahoo Mail addresses are lowercased regardless of the value of this setting.</li><li>*yahoo_remove_subaddress: true*: Normalizes addresses by removing "sub-addresses", which is the part following a "-" sign (e.g. "foo-bar@yahoo.com" becomes "foo@yahoo.com").</li><li>*icloud_lowercase: true* - iCloud addresses (including MobileMe) are known to be case-insensitive, so this switch allows lowercasing them even when *all_lowercase* is set to false. Please note that when *all_lowercase* is true, iCloud addresses are lowercased regardless of the value of this setting.</li><li>*icloud_remove_subaddress: true*: Normalizes addresses by removing "sub-addresses", which is the part following a "+" sign (e.g. "foo+bar@icloud.com" becomes "foo@icloud.com").</li></ul>
 **rtrim(input [, chars])**             | trim characters from the right-side of the input.
-**stripLow(input [, keep_new_lines])** | remove characters with a numerical value < 32 and 127, mostly control characters. If `keep_new_lines` is `true`, newline characters are preserved (`\n` and `\r`, hex `0xA` and `0xD`). Unicode-safe in JavaScript.
+**stripLow(input [, keep_new_lines])** | remove characters with a numerical value < 32 and 127, mostly control characters. If `keep_new_lines` is `true`, newline characters are preserved (`\n` and `\r`, hex `0xA` and `0xD`). Unicode-safe: works on UTF-16 code units like the original.
 **toBoolean(input [, strict])**        | convert the input string to a boolean. Everything except for `'0'`, `'false'` and `''` returns `true`. In strict mode only `'1'` and `'true'` return `true`.
 **toDate(input)**                      | convert the input string to a date, or `null` if the input is not a date.
 **toFloat(input)**                     | convert the input string to a float, or `NaN` if the input is not a float.
@@ -223,10 +206,7 @@ We welcome contributions from the community! If you're interested in contributin
 
 This project is licensed under the [MIT](LICENSE). See the [LICENSE](LICENSE) file for details.
 
-[downloads-image]: http://img.shields.io/npm/dm/validator.svg
 
-[npm-url]: https://npmjs.org/package/validator
-[npm-image]: http://img.shields.io/npm/v/validator.svg
 
 [codecov-url]: https://codecov.io/gh/validatorjs/validator.js
 [codecov-image]: https://codecov.io/gh/validatorjs/validator.js/branch/master/graph/badge.svg
@@ -240,8 +220,6 @@ This project is licensed under the [MIT](LICENSE). See the [LICENSE](LICENSE) fi
 [huntr-url]: https://huntr.dev/bounties/disclose/?target=https://github.com/validatorjs/validator.js
 [huntr-image]: https://cdn.huntr.dev/huntr_security_badge_mono.svg
 
-[amd]: http://requirejs.org/docs/whyamd.html
-[bower]: http://bower.io/
 
 [Crockford Base32]: http://www.crockford.com/base32.html
 [Base64 URL Safe]: https://base64.guru/standards/base64url
