@@ -175,6 +175,8 @@ func marshal(v any) string {
 	var b strings.Builder
 	enc := json.NewEncoder(&b)
 	enc.SetEscapeHTML(false)
-	_ = enc.Encode(v)
+	if err := enc.Encode(v); err != nil {
+		return "marshal error: " + err.Error()
+	}
 	return strings.TrimSuffix(b.String(), "\n")
 }

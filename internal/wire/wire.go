@@ -128,10 +128,29 @@ func decodeTag(key string, obj js.Value) (js.Value, error) {
 
 // WriteString writes s as a JSON string without HTML escaping.
 func WriteString(b *bytes.Buffer, s string) {
-	enc := json.NewEncoder(b)
-	enc.SetEscapeHTML(false)
-	_ = enc.Encode(s)
-	b.Truncate(b.Len() - 1)
+	const hex = "0123456789abcdef"
+	b.WriteByte('"')
+	for _, u := range js.ToU16(s) {
+		switch {
+		case u == '"' || u == '\\':
+			b.WriteByte('\\')
+			b.WriteByte(byte(u))
+		case u == '\n':
+			b.WriteString(`\n`)
+		case u == '\r':
+			b.WriteString(`\r`)
+		case u == '\t':
+			b.WriteString(`\t`)
+		case u < 0x20 || (u >= 0xD800 && u <= 0xDFFF):
+			b.WriteString(`\u`)
+			for shift := 12; shift >= 0; shift -= 4 {
+				b.WriteByte(hex[u>>uint(shift)&0xF])
+			}
+		default:
+			b.WriteString(js.FromU16([]uint16{u}))
+		}
+	}
+	b.WriteByte('"')
 }
 
 // Encode writes a result value as JSON with the tags of the command's contract; a Date is its toISOString text.
