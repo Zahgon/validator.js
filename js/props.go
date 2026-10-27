@@ -194,3 +194,29 @@ func ToIntegerOrInfinity(v Value) float64 {
 	}
 	return math.Trunc(n)
 }
+
+// HasOwnProperty implements Object.prototype.hasOwnProperty.call(v, key).
+func HasOwnProperty(v Value, key string) bool {
+	if v.kind == KindString {
+		if key == "length" {
+			return true
+		}
+		i, ok := canonicalIndex(key)
+		return ok && int(i) < Len16(v.s)
+	}
+	if v.kind != KindObject {
+		return false
+	}
+	if _, ok := v.o.OwnProp(key); ok {
+		return true
+	}
+	switch v.o.Class {
+	case ClassArray:
+		return key == "length"
+	case ClassRegExp:
+		return key == "lastIndex"
+	case ClassFunction:
+		return key == "name" || key == "length"
+	}
+	return false
+}
