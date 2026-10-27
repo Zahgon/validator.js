@@ -305,3 +305,12 @@ func LessEq(a, b Value) bool { r, ok := LessThan(b, a); return ok && !r }
 
 // GreaterEq implements a >= b.
 func GreaterEq(a, b Value) bool { r, ok := LessThan(a, b); return ok && !r }
+
+// Add implements the + operator.
+func Add(a, b Value) Value {
+	pa, pb := ToPrimitive(a, "default"), ToPrimitive(b, "default")
+	if pa.kind == KindString || pb.kind == KindString {
+		return Str(ToString(pa) + ToString(pb))
+	}
+	return Num(ToNumber(pa) + ToNumber(pb))
+}
