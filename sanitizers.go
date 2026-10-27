@@ -168,15 +168,16 @@ func isWhitelisted(a []js.Value) js.Value {
 	chars := arg(a, 1)
 	u := js.ToU16(s)
 	for i := len(u) - 1; i >= 0; i-- {
-		if indexOf(chars, js.Str(js.FromU16(u[i:i+1]))) == -1 {
+		if indexOfNamed(chars, js.Str(js.FromU16(u[i:i+1])), "chars.indexOf") == -1 {
 			return js.Bool(false)
 		}
 	}
 	return js.Bool(true)
 }
 
-// indexOf calls haystack.indexOf(needle) for a string or an array haystack, failing like JavaScript otherwise.
-func indexOf(haystack js.Value, needle js.Value) int {
+// indexOfNamed calls haystack.indexOf(needle) for a string or an array haystack; any other haystack fails like
+// JavaScript, naming the call expr in the TypeError.
+func indexOfNamed(haystack js.Value, needle js.Value, expr string) int {
 	switch {
 	case haystack.IsString():
 		return js.IndexOf16(haystack.String(), js.ToString(needle), 0)
@@ -189,7 +190,7 @@ func indexOf(haystack js.Value, needle js.Value) int {
 		return -1
 	}
 	if f := js.Get(haystack, "indexOf"); !f.IsFunction() {
-		js.Throw("TypeError", "chars.indexOf is not a function")
+		js.Throw("TypeError", expr+" is not a function")
 	}
 	return -1
 }
