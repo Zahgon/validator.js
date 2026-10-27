@@ -5,8 +5,10 @@ import (
 )
 
 func init() {
-	register("isAlpha", func(a []js.Value) js.Value { return js.Bool(isAlphaLike(a, alphaPatterns)) })
-	register("isAlphanumeric", func(a []js.Value) js.Value { return js.Bool(isAlphaLike(a, alphanumericPatterns)) })
+	register("isAlpha", func(a []js.Value) js.Value { return js.Bool(isAlphaLike(a, alphaPatterns, "alpha")) })
+	register("isAlphanumeric", func(a []js.Value) js.Value {
+		return js.Bool(isAlphaLike(a, alphanumericPatterns, "alphanumeric"))
+	})
 	registerValue("isAlphaLocales", func() js.Value { return localeKeys(alphaPatterns) })
 	registerValue("isAlphanumericLocales", func() js.Value { return localeKeys(alphanumericPatterns) })
 	registerPattern("isLocale", reLanguageTag)
@@ -15,7 +17,7 @@ func init() {
 var reIgnoreEscape = re(`[-[\]{}()*+?.,\\^$|#\\s]`, "g")
 
 // isAlphaLike implements isAlpha and isAlphanumeric over their locale table.
-func isAlphaLike(a []js.Value, table []localePattern) bool {
+func isAlphaLike(a []js.Value, table []localePattern, tableName string) bool {
 	str := assertString(arg(a, 0))
 	locale := arg(a, 1)
 	if locale.IsUndefined() {
@@ -47,7 +49,7 @@ func isAlphaLike(a []js.Value, table []localePattern) bool {
 		}
 	}
 	if js.IsObjectProtoKey(key) {
-		js.Throw("TypeError", "alpha[locale].test is not a function")
+		js.Throw("TypeError", tableName+"[locale].test is not a function")
 	}
 	js.Throw("Error", "Invalid locale '"+js.ToString(locale)+"'")
 	return false

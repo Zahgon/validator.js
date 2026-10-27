@@ -63,7 +63,7 @@ func isCreditCard(a []js.Value) js.Value {
 	provider := js.Get(options, "provider")
 	sanitized := replace(card, reCardSeparators, "")
 	if js.Truthy(provider) {
-		key := js.ToLowerCase(stringMethodTarget(provider, "toLowerCase"))
+		key := js.ToLowerCase(stringMethodTarget(provider, "provider", "toLowerCase"))
 		p, ok := lookupPattern(cardPatterns, key)
 		switch {
 		case ok:
@@ -71,7 +71,7 @@ func isCreditCard(a []js.Value) js.Value {
 				return js.Bool(false)
 			}
 		case js.IsObjectProtoKey(key):
-			js.Throw("TypeError", "cards[provider.toLowerCase()].test is not a function")
+			js.Throw("TypeError", "cards[provider.toLowerCase(...)].test is not a function")
 		default:
 			js.Throw("Error", js.ToString(provider)+" is not a valid credit card provider.")
 		}

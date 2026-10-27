@@ -57,10 +57,10 @@ func jsSplit(s string, sep js.Value) []string {
 }
 
 // stringMethodTarget returns v when it is a string and otherwise fails like calling a missing String method.
-func stringMethodTarget(v js.Value, method string) string {
+func stringMethodTarget(v js.Value, receiver, method string) string {
 	if !v.IsString() {
 		js.Get(v, method)
-		js.Throw("TypeError", method+" is not a function")
+		js.Throw("TypeError", receiver+"."+method+" is not a function")
 	}
 	return v.String()
 }
@@ -105,7 +105,7 @@ func isDate(input js.Value, options js.Value) bool {
 			dateDelimiter = findDelimiter(opt(options, "delimiters"), input)
 		}
 		dateWords := jsSplit(in, dateDelimiter)
-		formatWords := jsSplit(js.ToLowerCase(stringMethodTarget(format, "toLowerCase")), formatDelimiter)
+		formatWords := jsSplit(js.ToLowerCase(stringMethodTarget(format, "options.format", "toLowerCase")), formatDelimiter)
 		dateObj := map[string]string{}
 		n := len(dateWords)
 		if len(formatWords) > n {
@@ -189,7 +189,7 @@ func isTime(a []js.Value) js.Value {
 	modeKey := js.ToPropertyKey(opt(options, "mode"))
 	if !ok {
 		if js.IsObjectProtoKey(hourKey) {
-			js.Throw("TypeError", "formats[options.hourFormat][options.mode].test is not a function")
+			js.Throw("TypeError", "Cannot read properties of undefined (reading 'test')")
 		}
 		js.Throw("TypeError", "Cannot read properties of undefined (reading '"+modeKey+"')")
 	}

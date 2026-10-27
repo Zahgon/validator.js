@@ -146,7 +146,7 @@ func isPassportNumber(a []js.Value) js.Value {
 	s := assertString(arg(a, 0))
 	countryCode := arg(a, 1)
 	normalized := js.ToUpperCase(replace(s, reWhitespaceAll, ""))
-	upper := js.ToUpperCase(stringMethodTarget(countryCode, "toUpperCase"))
+	upper := js.ToUpperCase(stringMethodTarget(countryCode, "countryCode", "toUpperCase"))
 	if _, ok := lookupPattern(passportPatterns, upper); !ok {
 		return js.Bool(false)
 	}
